@@ -1,0 +1,322 @@
+<hmtl>
+<head>
+    <title>My Calculator</title>
+    
+    <!-- CSS -->
+    <style type = "text/css">
+
+        body {
+            font-size: large
+        }
+
+        .indent {
+            margin-left:1em 
+        }
+
+        button { 
+            width:2.2em; 
+            font-weight:bold 
+        }
+
+        .calculator {
+            position: absolute;
+    		top: 50%;
+    		left: 50%;
+    		transform: translate(-50%, -50%);
+            padding-top: 15px;
+            background-color: black;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        #box {
+            background-color: black;
+            text-align: center;
+            color: white;
+        }
+
+        p#box{
+            margin: 0%;
+            padding-bottom: 10px;
+        }
+
+        table {
+            background-color: black;
+            border-spacing: 0px;
+        }
+
+        .number {
+            background-color: #aaa;
+            border: none;
+            padding: 20%;
+            font-weight: lighter;
+
+        }
+
+        .number:hover{
+            background-color: gray;
+            color: white;
+        }
+
+        .clear {
+            padding: 20%;
+            background-color: red;
+            border: none;
+            color: white;
+            font-weight: lighter;
+        }
+
+        .clear:hover{
+            background-color: #ab1302;
+        }
+
+        .operators{
+            color: white;
+            background-color: #FF9500;
+            border: none;
+            font-weight: lighter;
+        }
+
+        .operators:hover{
+            background-color: #c47608;
+        }
+
+        .equals{
+            width: 200%;
+            color: white;
+            background-color: #FF9500;
+            border: none;
+            font-weight: lighter;
+        }
+
+        .equals:hover {
+            background-color: #c47608;
+        }
+
+    </style>
+</head>
+
+<body>
+<div class="calculator">
+    <p id="box">0</p>
+
+    <table>
+        <tr>
+            <td>
+                <button class="number" 
+                        data-numbers="1">
+                    1
+                </button>
+            </td>
+            <td>
+                <button class="number" 
+                        data-numbers="2">
+                    2
+                </button>
+            </td>
+            <td>
+                <button class="number" 
+                        data-numbers="3">
+                    3
+                </button>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <button class="number" 
+                        data-numbers="4">
+                    4
+                </button>
+            </td>
+            <td>
+                <button class="number" 
+                        data-numbers="5">
+                    5
+                </button>
+            </td>
+            <td>
+                <button class="number" 
+                        data-numbers="6">
+                    6
+                </button>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <button class="number" 
+                        data-numbers="7">
+                    7
+                </button>
+            </td>
+            <td>
+                <button class="number" 
+                        data-numbers="8">
+                    8
+                </button>
+            </td>
+            <td>
+                <button class="number" 
+                        data-numbers="9">
+                    9
+                </button>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <button class="number"
+                        data-numbers=".">
+                    .
+                </button>
+            </td>
+            <td>
+                <button class="number"
+                        data-numbers="0">
+                    0
+                </button>
+            </td>
+            <td>
+                <button id="clear" 
+                        class="clear">
+                    C
+                </button>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <button class="operators"
+                        data-operators="plus">
+                    +
+                </button>
+            </td>
+            <td>
+                <button class="operators"
+                        data-operators="minus">
+                    -
+                </button>
+            </td>
+            <td>
+                <button class="operators"
+                        data-operators="multiply">
+                    *
+                </button>
+            </td>
+        </tr>
+
+    </table>
+
+    <table class="indent">
+        <tr>
+            <td>
+                <button class="operators"
+                        data-operators="divide">
+                    /
+                </button>
+            </td>
+            <td>
+                <button class="equals"
+                        id="equals"
+                        data-result="">
+                    =
+                </button>
+            </td>
+            
+        </tr>
+    </table>
+</div>
+
+<!-- JavaScript -->
+<script>
+   (function() {
+
+    var el = function(element) {
+        if (element.charAt(0) === "#") { 
+        return document.querySelector(element); 
+        }
+
+        return document.querySelectorAll(element); 
+    };
+
+  
+    var box = el("#box"), // Result is displayed here
+        equals = el("#equals"), // Equal 
+        numbers = el(".number"), // numbers
+        operators = el(".operators"), // operators
+        currentNumber = "", // Current number
+        oldNumber = "", // First number
+        resultNmber, // Result
+        operator; // Operator
+
+    var setNumber = function() {
+        if (resultNmber) { 
+        currentNumber = this.getAttribute("data-numbers");
+        resultNmber = "";
+        } else { 
+        currentNumber += this.getAttribute("data-numbers");
+        }
+
+        box.innerHTML = currentNumber; 
+
+    };
+
+    var moveNumber = function() {
+        oldNumber = currentNumber;
+        currentNumber = "";
+        operator = this.getAttribute("data-operators");
+
+        equals.setAttribute("data-result", "");
+    };
+
+    var displayNumber = function() {
+
+        oldNumber = parseFloat(oldNumber);
+        currentNumber = parseFloat(currentNumber);
+
+        if(operator == "plus") {
+            resultNmber = oldNumber + currentNumber;
+        } else if (operator == "minus") {
+            resultNmber = oldNumber - currentNumber;
+        } else if (operator == "multiply") {
+            resultNmber = oldNumber * currentNumber;
+        } else {
+            resultNmber = oldNumber / currentNumber;
+        }
+
+        box.innerHTML = resultNmber;
+        equals.setAttribute("data-result", resultNmber);
+
+        oldNumber = 0;
+        currentNumber = resultNmber;
+
+    };
+
+    var clearAll = function() {
+        oldNumber = "";
+        currentNumber = "";
+        box.innerHTML = "0";
+        equals.setAttribute("data-result", resultNmber);
+    };
+
+    for (var i = 0; i < numbers.length; i++) {
+        numbers[i].onclick = setNumber;
+    }
+
+    for (var i = 0; i < operators.length; i++) {
+        operators[i].onclick = moveNumber;
+    }
+
+    equals.onclick = displayNumber;
+    el("#clear").onclick = clearAll;
+
+    el("#reset").onclick = function() {
+        window.location = window.location;
+    };
+
+    }());
+</script>
+
+</body>
+</html>

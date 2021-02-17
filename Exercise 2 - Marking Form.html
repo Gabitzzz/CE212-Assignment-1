@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Marking form</title>
+    <meta charset="UTF-8">
+
+    <!--  jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- CSS -->
+    <style type = "text/css">
+    	* { 
+            font-family: 'Times New Roman', Times, serif;
+
+            }
+    	
+        select {
+            padding: 3px; 
+            }
+
+    	table { 
+            text-align: center; 
+            border-collapse: collapse; 
+            margin-bottom: 15px; 
+            }
+
+    	thead { 
+            color: red; 
+            }
+            
+
+    	th, td { 
+            min-width: 70px; 
+            padding: 5px; 
+            }
+
+        td{
+            color: blue;
+        }
+
+    	#table_container {
+    		position: absolute;
+    		top: 50%;
+    		left: 50%;
+    		transform: translate(-50%, -50%);
+    		padding: 15px;
+    	}
+
+		body { 
+            background-color: #e8e8e8;
+            }
+		
+        input[name="total"] {
+            max-width: 50px; 
+            text-align: center; 
+            color: black;
+            }
+
+    </style>
+</head>
+<body>
+
+	<div id="table_container">
+		<form id="marks_form" method="post">
+
+			<table>
+				<thead>
+					<tr><th>Section</th><th>Max</th><th>Comments</th><th>Mark</th></tr>
+				</thead>
+
+				<tbody id="table">
+                    <!-- body of the table will be dynamically filled by JavaScript -->
+                </tbody>
+			</table>
+
+			Total: 
+            <!-- Total output -->
+            <input type="text" 
+                    name="total" 
+                    value="0"/>
+            
+            <!-- Submit button -->
+			<input type="submit" 
+                    name="submit" 
+                    value="Submit"/>
+            
+            <!-- Clear button -->
+			<input type="reset" 
+                    name="reset" 
+                    value="Clear"/>
+			
+		</form>
+	</div>
+
+    <!-- JavaScript -->
+	<script>
+		var rows = [
+			{ 'section': 'Dynamic Table', 	 'max': 20 },
+			{ 'section': 'Intellij Usage', 	 'max': 10 },
+			{ 'section': 'Calendar Control', 'max': 30 },
+			{ 'section': 'Active Form',		 'max': 20 },
+			{ 'section': 'Object Database',	 'max': 20 }
+		];
+		
+		$(function(){
+			for (row of rows) {
+				/*  tr - table row element  
+					td - table data element  */
+				var tr = document.createElement('tr');
+
+                // td elements - children of tr 
+				var td_section = document.createElement('td'); 
+                td_section.setAttribute('style', 'text-align: left;');
+				
+                var td_max = document.createElement('td');
+				var td_comment = document.createElement('td');
+				var td_mark = document.createElement('td');
+								
+				td_section.textContent = row['section'];
+				td_max.textContent = row['max'];
+
+				var comment_input = document.createElement('input');
+				comment_input.setAttribute('type', 'text');
+
+				comment_input.setAttribute('name', 'comment_' + row['section']);
+				td_comment.appendChild(comment_input);
+
+				var select_mark = document.createElement('select');
+				select_mark.setAttribute('form', 'marks_form');
+				select_mark.name = row['section'];
+
+				for (var i = 0; i <= row['max']; i++) {
+					var option = document.createElement('option');
+					option.value = i;
+					option.textContent = i;
+					select_mark.appendChild(option);
+				}
+				td_mark.appendChild(select_mark);
+
+				tr.appendChild(td_section);
+				tr.appendChild(td_max);
+				tr.appendChild(td_comment);
+				tr.appendChild(td_mark);
+
+				$('#table').append(tr);
+			}
+
+                // when the user pick an option from the "select" menu, the value of selected option is added to the "Total" input field
+			$('select').on('change', function() {
+				var sum = 0;
+				$('select').each(function(){
+					sum += parseInt($(this).children("option:selected").val());
+				})
+				$('input[name="total"]').attr('value', sum);
+			});
+
+			$('input[value="Clear"]').click(function() {
+				$('input[name="total"]').attr('value', 0);
+			});
+		});
+
+	</script>
+</body>
+</html>

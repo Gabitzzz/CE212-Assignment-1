@@ -1,0 +1,241 @@
+<html>
+<head>
+    <title>Dynamic Data Table</title>
+    
+    <!-- Include jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- CSS  -->
+    <style type = "text/css">
+
+        * { 
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        body { 
+            background-color: #f59b7f; 
+            text-align: center;
+            }
+
+        table, th, tr, td { 
+            text-align: center; 
+            border-collapse: collapse; 
+            padding: 15px; 
+            min-width: 200px; 
+            }
+
+        tr:nth-child(even) {
+            background-color: #F5B477; 
+            }
+
+        thead { 
+            color: white;
+            border: 2px solid black; 
+            background-color: #319665; 
+            }
+
+        tbody { 
+            background-color: white;
+            }
+
+        #input_area, #container { 
+            position: absolute; 
+            top:50%; 
+            transform: translateY(-50%) translateX(-50%); 
+            }
+
+        #input_area { 
+            left: 30%; 
+            }
+
+        #input_area * {
+            margin: 10px 0 10px 0; 
+            padding: 10px; 
+            width:100%; 
+            text-align: center; 
+            }
+
+        #input_area h2 { 
+            color:white; 
+            }
+
+        #container { 
+            max-height: 80%; 
+            overflow-y: scroll; 
+            left: 65%; 
+            }
+    </style>
+</head>
+
+<body>
+
+    <!--  Input   -->
+    <div id="input_area">
+        <h2 class="fah"></h2>
+
+        <input id="start_range" 
+                type="text" 
+                value="" 
+                placeholder="Start Range (required)" 
+                oninput="onInput(event);"> 
+        <br>
+        
+        <input id="end_range" 
+                type="text" 
+                value="" 
+                placeholder="End Range (optional)" 
+                oninput="onInput(event);"> 
+        <br>
+
+        <input type="button" 
+                value="Switch" 
+                onclick="onChange();">
+
+        <input type="button" 
+                value="Update the table" 
+                onclick="updateTable();">
+    </div>
+    
+    <div id="container" style="display: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th class="fah"></th>
+                    <th class="cel"></th>      
+                </tr>
+            </thead>
+
+            <tbody id="dynamic_table_body">
+                <!-- body of the table will be filled by JavaScript -->
+            </tbody>
+        </table>
+    </div> 
+ 
+    <!-- JavaScript -->
+    <script>
+        var fah = "Fahrenheit";
+        var cel = "Celsius";
+
+        $(function() {
+            updateName();
+        });
+ 
+        function updateName() {
+           $(".fah").text(fah);
+           $(".cel").text(cel);  
+        }
+
+        function updateTable() {    
+            var start_range = $("#start_range").val();
+            var end_range = $("#end_range").val();
+
+            /*  Regex patterns below are consisting of:
+                    //      - start and end of regex pattern (equivalent to "new RegExp('')")
+                    ^       - begining of text
+                    \d+     - 1 or more digits (lower bound can't be empty)
+                    \d*     - 0 or more digits (uppoer bound is optional)
+                    $       - end of text  */
+            if (!/^\d+$/.test(start_range) || !/^\d*$/.test(end_range)) {
+                wrongInputNotification(start_range, end_range);
+                return;
+            }
+
+            start_range = parseInt(start_range);
+            end_range = parseInt(end_range);
+
+            if (start_range === 0) {
+                wrongInputNotification(start_range, end_range);
+                return;
+            }
+
+            var rows = "";
+
+            if (start_range && !end_range && end_range !== 0) {
+                end_range = start_range + 9;
+                $("#end_range").val(end_range);
+            }
+
+            var addOn = end_range - start_range;
+            if (!addOn) { 
+                addOn = 1; 
+            }
+            addOn /= Math.abs(addOn);
+
+            for (var i = start_range; i != (end_range + addOn); i += addOn) {
+                rows += "<tr>";
+                rows += "<td>" + i + "</td>";
+                rows += "<td>" + convertUnit(i).toFixed(1) + "</td>";
+                rows += "</tr>";
+            }
+
+            $("#container table tbody").html(rows);
+            updateName();
+            $("#container").fadeIn(250);
+        }
+
+
+        function onInput(event) {
+            var elem = $(event.srcElement);
+            var text = elem.val();
+            var clear = "white";
+            
+            /*  If any input fields contains negative integer or if the "start range" 
+                is equal to 0, then change background colour of input field.
+
+                Regex pattern below is consisting of:
+                    //      - start and end of regex pattern (equivalent to "new RegExp('')")
+                    ^       - begining of text
+                    \d*     - 0 or more digits
+                    $       - end of text  */
+            if ( !/^\d*$/.test(text) || (elem[0].id == "start_range"  && parseInt(text) === 0) )
+                clear = "#ff0000";
+            elem.css("background-color", clear);
+        }
+
+        function onChange() {
+            $("#container").fadeIn(250, function() {
+                /*  Swap names  */
+                var temp = fah;
+                fah = cel;
+                cel = temp;
+
+                updateTable();    
+            });
+        }
+
+        function convertUnit(val) {
+            if (cel == "Fahrenheit")
+                return val * 9 / 5 + 32;
+            return (val - 32) * 5 / 9;
+        }        
+
+        function wrongInputNotification(start_range, end_range) {
+            var message = "";
+
+            if (start_range === "")
+                message += "The start range field can't be empty.\n";
+
+            if (start_range == 0) 
+                message += "The start range must be a positive integer (can't be 0).\n";
+
+            if (start_range < 0) 
+                message += "The start range can't be negative (can't be 0).\n";
+
+            if (end_range < 0) 
+                message += "The end range can't be negative (it can be 0 though).\n";
+
+            var is_number = isNumber(end_range) && isNumber(start_range);
+            if (/[^0-9]/.test(start_range) || /[^0-9]/.test(end_range) && !is_number)
+                message += "The input fields can't contain non-digit characters.\n"
+
+            alert(message);
+        }
+
+        /*  Checks if it's a number (including negative numbers)  */
+        function isNumber(str) {
+            return /^-{0,1}\d+$/.test(str);
+        }
+    </script>
+</body>
+
+</html>
